@@ -209,7 +209,6 @@ function applyGitDiffHighlighting(editor: vscode.TextEditor, diffOutput: string)
               }
               else if (change.type === 'removed' && change.end > change.start) {
                 // For deleted text, we need to find where it would have been in the new line
-                // This is approximate since the text is already gone
                 const startPos = new vscode.Position(editorLine, change.start);
                 const endPos = new vscode.Position(editorLine, change.start);
                 
@@ -219,10 +218,9 @@ function applyGitDiffHighlighting(editor: vscode.TextEditor, diffOutput: string)
                   renderOptions: {
                     after: {
                       contentText: oldLine.substring(change.start, change.end),
-                      backgroundColor: 'rgba(255, 100, 100, 0.1)',  // More subtle red
-                      textDecoration: 'line-through',
-                      color: '#700000',  // Darker red for better contrast but still subtle
-                      margin: '0 4px'   // Smaller margin for subtlety
+                      backgroundColor: 'rgba(255, 100, 100, 0.07)',  // Keep the subtle red background
+                      color: 'rgba(150, 30, 30, 0.7)',  // Keep the color
+                      margin: '0 4px'   // Keep the margin
                     }
                   }
                 });
@@ -234,12 +232,6 @@ function applyGitDiffHighlighting(editor: vscode.TextEditor, diffOutput: string)
             
             // Mark as modified instead
             modifiedLines.push(new vscode.Range(editorLine, 0, editorLine, 0));
-            
-            // Add hover text to show what was deleted/modified
-            hoverDecorations.push({
-              range: new vscode.Range(editorLine, 0, editorLine, editor.document.lineAt(editorLine).text.length),
-              hoverMessage: new vscode.MarkdownString(`**Previous version:** \`${oldLine}\``),
-            });
           } else {
             // This is a completely new line - highlight the entire content
             const lineText = editor.document.lineAt(editorLine).text;
@@ -280,17 +272,16 @@ function applyGitDiffHighlighting(editor: vscode.TextEditor, diffOutput: string)
             for (let k = 0; k < consecutiveDeletedLines; k++) {
               const content = currentDeletedContent[k];
               
-              // Add hover text to show what was deleted
+              // Add decoration for deleted content (without hover text)
               hoverDecorations.push({
                 range: new vscode.Range(editorLine, 0, editorLine, 0),
-                hoverMessage: new vscode.MarkdownString(`**Deleted:** \`${content}\``),
                 renderOptions: {
                   after: {
-                    contentText: `${content}`,
-                    backgroundColor: 'rgba(255, 100, 100, 0.07)',
-                    color: 'rgba(150, 30, 30, 0.7)',
+                    contentText: content,
+                    backgroundColor: 'rgba(255, 100, 100, 0.07)', 
+                    color: 'rgba(150, 30, 30, 0.7)', 
                     fontStyle: 'italic',
-                    margin: `${k * 16}px 0 2px 12px`,
+                    margin: `${k * 16}px 0 2px 12px`, 
                     border: '0 0 0 1px dotted rgba(255, 70, 70, 0.3)'
                   }
                 }
