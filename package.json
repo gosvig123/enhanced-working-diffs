@@ -2,10 +2,10 @@
   "name": "enhanced-working-diffs",
   "displayName": "enhanced working diffs",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "gosvig123",
   "engines": {
-    "vscode": "^1.97.0"
+    "vscode": "1.96.2"
   },
   "categories": [
     "Other"
