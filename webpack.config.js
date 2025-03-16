@@ -23,5 +23,6 @@ module.exports = {
         use: 'ts-loader'
       }
     ]
-  }
+  },
+  devtool: 'inline-source-map'
 };
