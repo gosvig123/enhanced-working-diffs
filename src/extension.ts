@@ -45,7 +45,8 @@ export function activate(context: vscode.ExtensionContext) {
       const editor = vscode.window.activeTextEditor;
       
       // Check if the changed document is the active one
-      if (editor && event.document === editor.document) {
+      if (
+        editor && event.document === editor.document) {
         // We need to clear existing decorations first to avoid stacking
         clearDecorations();
         
@@ -207,23 +208,21 @@ function applyGitDiffHighlighting(editor: vscode.TextEditor, diffOutput: string)
                 const endPos = new vscode.Position(editorLine, change.end);
                 addedTexts.push(new vscode.Range(startPos, endPos));
               }
-              else if (change.type === 'removed' && change.end > change.start) {
+              else if (change.type === 'removed') {
                 // For deleted text, we need to find where it would have been in the new line
-                const startPos = new vscode.Position(editorLine, change.start);
-                const endPos = new vscode.Position(editorLine, change.start);
-                
-                // Create a decoration with after text to show what was deleted (more subtle)
-                hoverDecorations.push({
-                  range: new vscode.Range(startPos, endPos),
-                  renderOptions: {
-                    after: {
-                      contentText: oldLine.substring(change.start, change.end),
-                      backgroundColor: 'rgba(255, 100, 100, 0.07)',  // Keep the subtle red background
-                      color: 'rgba(150, 30, 30, 0.7)',  // Keep the color
-                      margin: '0 4px'   // Keep the margin
-                    }
+                const lineNumber = editor.document.lineAt(editorLine).lineNumber
+                for (let i = 0; i < lineNumber; i++) {
+                  const line = editor.document.lineAt(i);
+                  const lineText = line.text;
+                  if (lineText.length > 0) {
+                    const startPos = new vscode.Position(i, 0);
+                    const endPos = new vscode.Position(i, lineText.length);
+                    deletedTexts.push(new vscode.Range(startPos, endPos));
                   }
-                });
+                }
+
+                
+
               }
             }
             
@@ -250,44 +249,38 @@ function applyGitDiffHighlighting(editor: vscode.TextEditor, diffOutput: string)
         
         // If the next line isn't an addition (replacement), show as deleted
         if (!nextLine || nextLine.type !== 'added') {
-          if (editorLine < editor.document.lineCount) {
-            deletedLineHints.push(new vscode.Range(editorLine, 0, editorLine, 0));
-            
-            // Count consecutive deleted lines
-            let consecutiveDeletedLines = 1;
-            let currentDeletedContent = [line.content];
-            
-            // Look ahead for more consecutive deleted lines
-            for (let j = i + 1; j < hunk.lines.length; j++) {
-              if (hunk.lines[j].type === 'removed') {
-                consecutiveDeletedLines++;
-                currentDeletedContent.push(hunk.lines[j].content);
-                i++; // Skip these lines in the outer loop since we're handling them here
-              } else {
-                break;
-              }
-            }
-            
-            // Handle each deleted line separately
-            for (let k = 0; k < consecutiveDeletedLines; k++) {
-              const content = currentDeletedContent[k];
-              
-              // Add decoration for deleted content (without hover text)
-              hoverDecorations.push({
-                range: new vscode.Range(editorLine, 0, editorLine, 0),
-                renderOptions: {
-                  after: {
-                    contentText: content,
-                    backgroundColor: 'rgba(255, 100, 100, 0.07)', 
-                    color: 'rgba(150, 30, 30, 0.7)', 
-                    fontStyle: 'italic',
-                    margin: `${k * 16}px 0 2px 12px`, 
-                    border: '0 0 0 1px dotted rgba(255, 70, 70, 0.3)'
-                  }
+            if (editorLine < editor.document.lineCount) {
+                deletedLineHints.push(new vscode.Range(editorLine, 0, editorLine, 0));
+                
+                // Track all consecutive deleted lines
+                const deletedLines = [line.content];
+                let deleteCount = 1;
+                
+                // Look ahead for consecutive deletions
+                while (i + deleteCount < hunk.lines.length && 
+                       hunk.lines[i + deleteCount].type === 'removed') {
+                    deletedLines.push(hunk.lines[i + deleteCount].content);
+                    deleteCount++;
                 }
-              });
+                
+                // Create multi-line decoration with proper line spacing
+                hoverDecorations.push({
+                    range: new vscode.Range(editorLine, 0, editorLine, 0),
+                    renderOptions: {
+                        after: {
+                            contentText: deletedLines.join('\n'),
+                            backgroundColor: 'rgba(255, 100, 100, 0.15)',
+                            color: 'rgba(150, 30, 30, 0.8)',
+                            fontStyle: 'italic',
+                            margin: '0 0 0 12px',
+                            border: '1px solid rgba(255, 70, 70, 0.4)'
+                        }
+                    }
+                });
+                
+                // Skip processed lines in outer loop
+                i += deleteCount - 1;
             }
-          }
         }
         // Don't increment editorLine for removed lines
       }
