@@ -2,7 +2,7 @@
   "name": "enhanced-working-diffs",
   "displayName": "enhanced working diffs",
   "description": "",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "gosvig123",
   "engines": {
     "vscode": "1.96.2"
@@ -40,6 +40,7 @@
     "publish": "vsce publish"
   },
   "devDependencies": {
+    "@types/diff": "^7.0.2",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.96.2",
@@ -47,12 +48,13 @@
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^2.15.0",
+    "diff": "^7.0.0",
     "ts-loader": "^9.5.2",
     "typescript": "^5.7.3",
     "webpack": "^5.98.0",
     "webpack-cli": "^6.0.1"
   },
-  "dependencies": {
-    "simple-git": "^3.27.0"
-  }
+  "extensionDependencies": [
+    "vscode.git"
+  ]
 }

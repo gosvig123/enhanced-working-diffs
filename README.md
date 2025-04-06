@@ -33,10 +33,18 @@ This VS Code extension enhances your workflow by displaying inline Git diff deco
 
 ## Known Issues
 
-*  Currently, the extension relies on `simple-git` and standard Git diff output. Complex diff scenarios or custom Git configurations might not be fully supported.
+*  Currently, the extension relies on VS Code's built-in Git API. Complex diff scenarios or custom Git configurations might not be fully supported.
 *  Performance on very large files with extensive changes might be slightly impacted.
 
 ## Release Notes
+
+### 0.0.6
+
+Major update to Enhanced Working Diffs:
+* Removed dependency on simple-git library
+* Now uses VS Code's native Git API for better integration
+* Added basic tests for the extension
+* Improved code organization and maintainability
 
 ### 0.0.1
 
@@ -56,6 +64,6 @@ This extension adheres to VS Code extension guidelines to provide a seamless and
 ## For more information
 
 * [Visual Studio Code's Extension API](https://code.visualstudio.com/api)
-* [Simple Git Library](https://www.npmjs.com/package/simple-git)
+* [VS Code Git Extension API](https://github.com/microsoft/vscode/blob/main/extensions/git/src/api/git.d.ts)
 
 **Enjoy enhanced diff visibility in your daily coding!**
